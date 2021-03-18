@@ -46,6 +46,8 @@ RUN --mount=type=cache,target=/var/cache/yarn \
     cd /home/frappe/frappe-bench/apps/frappe \
     && yarn --verbose --prefer-offline --frozen-lockfile
 
+# We don't cache mount here because yarn will delete dev-dependencies in the resulting cache
+# dev-dependencies should only be deleted inside the final image and not the resulting cache
 RUN cd /home/frappe/frappe-bench/apps/frappe \
     && yarn run production \
     && yarn --verbose install --prefer-offline --frozen-lockfile --production=true
