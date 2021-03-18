@@ -74,6 +74,7 @@ https://github.com/frappe/frappe_docker/issues/380#issuecomment-767201476
             --platform linux/arm64 \
             --build-arg DOCKER_REGISTRY_PREFIX=${DOCKER_REGISTRY_PREFIX} \
             --build-arg FRAPPE_VERSION=${FRAPPE_VERSION} \
+            --build-arg ERPNEXT_VERSION=${ERPNEXT_VERSION} \
             -t ${DOCKER_REGISTRY_PREFIX}/erpnext-nginx:${FRAPPE_VERSION} \
             --no-cache -f build/erpnext-nginx/arm64.Dockerfile .
   ```

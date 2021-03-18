@@ -1,5 +1,7 @@
 # syntax=docker/dockerfile:1.2
 ARG NODE_IMAGE_TAG=12-buster-slim
+ARG FRAPPE_VERSION=develop
+ARG DOCKER_REGISTRY_PREFIX=frappe
 FROM node:${NODE_IMAGE_TAG}
 
 RUN --mount=type=cache,target=/var/cache/apt --mount=type=cache,target=/var/lib/apt,sharing=locked \
@@ -20,10 +22,7 @@ RUN \
   --mount=type=cache,target=/home/frappe/frappe-bench/apps/erpnext/node_modules \
   /install_app erpnext https://github.com/frappe/erpnext ${ERPNEXT_VERSION}
 
-ARG FRAPPE_VERSION=develop
-ARG DOCKER_REGISTRY_PREFIX=frappe
-RUN [ -n "$FRAPPE_VERSION" ] || exit 1
-FROM ${DOCKER_REGISTRY_PREFIX}/frappe-nginx:${FRAPPE_VERSION}
+FROM "${DOCKER_REGISTRY_PREFIX}/frappe-nginx:${FRAPPE_VERSION}"
 
 COPY --from=0 /home/frappe/frappe-bench/sites/ /var/www/html/
 COPY --from=0 /rsync /rsync
