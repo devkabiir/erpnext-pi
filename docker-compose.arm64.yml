@@ -72,7 +72,7 @@ services:
     scale: 0
     build:
       context: .
-      dockerfile: build/erpnext-worker/arm64.Dockerfile
+      dockerfile: build/frappe-worker/arm64.Dockerfile
       args:
         FRAPPE_VERSION: ${FRAPPE_VERSION}
 
