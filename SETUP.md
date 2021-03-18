@@ -18,94 +18,106 @@ http://stackoverflow.com/questions/46202475/ddg#46225471
   `exit`  
 - Reboot `sudo reboot`
 
+## Running
+- `cp env-local-arm64 .env`
+- `docker-compose --project-name <project-name> up -d
+
+## Build using docker-compose
+- `cp env-local-arm64 .env`
+- Update frappe/erpnext versions in `.env` if required
+- `docker-compose build frappe-socketio frappe-nginx frappe-worker`
+- `docker-compose build erpnext-nginx erpnext-python`
+
 ## Build images
 https://github.com/frappe/frappe_docker/issues/380#issuecomment-767201476
 
+- `cp env-local-arm64 .env`
 - `export DOCKER_BUILDKIT=1`
 - `export COMPOSE_DOCKER_CLI_BUILD=1`
 - `export DOCKER_CLI_EXPERIMENTAL=enabled`
 - `export DOCKER_REGISTRY_PREFIX=devkabiir`
-- `export GIT_BRANCH=version-12`
-- `export VERSION=<exact-version>` (Not being used currently, although used for tagging images)
+- `export FRAPPE_VERSION=version-12`
+- `export ERPNEXT_VERSION=version-12`
 
-- Build `frappe-socketio:version-12`
+- Build `frappe-socketio`
   ```sh
   docker buildx build \
             --load \
             --platform linux/arm64 \
             --build-arg DOCKER_REGISTRY_PREFIX=${DOCKER_REGISTRY_PREFIX} \
-            --build-arg GIT_BRANCH=${GIT_BRANCH} \
-            -t ${DOCKER_REGISTRY_PREFIX}/frappe-socketio:${GIT_BRANCH} \
+            --build-arg FRAPPE_VERSION=${FRAPPE_VERSION} \
+            -t ${DOCKER_REGISTRY_PREFIX}/frappe-socketio:${FRAPPE_VERSION} \
             --no-cache -f build/frappe-socketio/arm64.Dockerfile .
   ```
 
-- Build `frappe-nginx:version-12`  
+- Build `frappe-nginx`  
   `export HTTP_TIMEOUT=600`  
   ```sh
   docker buildx build \
             --load \
             --platform linux/arm64 \
             --build-arg DOCKER_REGISTRY_PREFIX=${DOCKER_REGISTRY_PREFIX} \
-            --build-arg GIT_BRANCH=${GIT_BRANCH} \
-            -t ${DOCKER_REGISTRY_PREFIX}/frappe-nginx:${GIT_BRANCH} \
+            --build-arg FRAPPE_VERSION=${FRAPPE_VERSION} \
+            -t ${DOCKER_REGISTRY_PREFIX}/frappe-nginx:${FRAPPE_VERSION} \
             --no-cache -f build/frappe-nginx/arm64.Dockerfile .
   ```
 
 - [Because of the abomination that is docker](https://github.com/moby/buildkit/issues/1142)
   ```
-  docker push ${DOCKER_REGISTRY_PREFIX}/frappe-nginx:${GIT_BRANCH}
+  docker push ${DOCKER_REGISTRY_PREFIX}/frappe-nginx:${FRAPPE_VERSION}
   ```
 
-- Build `erpnext-nginx:version-12`  
+- Build `erpnext-nginx`  
   ```sh
   docker buildx build \
             --load \
             --platform linux/arm64 \
             --build-arg DOCKER_REGISTRY_PREFIX=${DOCKER_REGISTRY_PREFIX} \
-            --build-arg GIT_BRANCH=${GIT_BRANCH} \
-            -t ${DOCKER_REGISTRY_PREFIX}/erpnext-nginx:${GIT_BRANCH} \
+            --build-arg FRAPPE_VERSION=${FRAPPE_VERSION} \
+            -t ${DOCKER_REGISTRY_PREFIX}/erpnext-nginx:${FRAPPE_VERSION} \
             --no-cache -f build/erpnext-nginx/arm64.Dockerfile .
   ```
 
-- Build `frappe-worker:version-12`
+- Build `frappe-worker`
   ```sh
   docker buildx build \
             --load \
             --platform linux/arm64 \
             --build-arg DOCKER_REGISTRY_PREFIX=${DOCKER_REGISTRY_PREFIX} \
-            --build-arg GIT_BRANCH=${GIT_BRANCH} \
-            -t ${DOCKER_REGISTRY_PREFIX}/frappe-worker:${GIT_BRANCH} \
+            --build-arg FRAPPE_VERSION=${FRAPPE_VERSION} \
+            -t ${DOCKER_REGISTRY_PREFIX}/frappe-worker:${FRAPPE_VERSION} \
             --no-cache -f build/frappe-worker/arm64.Dockerfile .
   ```
 
 - [Because of the abomination that is docker](https://github.com/moby/buildkit/issues/1142)
   ```
-  docker push ${DOCKER_REGISTRY_PREFIX}/frappe-worker:${GIT_BRANCH}
+  docker push ${DOCKER_REGISTRY_PREFIX}/frappe-worker:${FRAPPE_VERSION}
   ```
 
-- Build `app-worker:version-12`
+- Build `app-worker`
   ```sh
   docker buildx build \
             --load \
             --platform linux/arm64 \
             --build-arg DOCKER_REGISTRY_PREFIX=${DOCKER_REGISTRY_PREFIX} \
-            --build-arg GIT_BRANCH=${GIT_BRANCH} \
-            -t ${DOCKER_REGISTRY_PREFIX}/app-worker:${GIT_BRANCH} \
+            --build-arg FRAPPE_VERSION=${FRAPPE_VERSION} \
+            -t ${DOCKER_REGISTRY_PREFIX}/app-worker:${FRAPPE_VERSION} \
             --no-cache -f build/app-worker/arm64.Dockerfile .
   ```
 
 - [Because of the abomination that is docker](https://github.com/moby/buildkit/issues/1142)
   ```
-  docker push ${DOCKER_REGISTRY_PREFIX}/app-worker:${GIT_BRANCH}
+  docker push ${DOCKER_REGISTRY_PREFIX}/app-worker:${FRAPPE_VERSION}
   ```
 
-- Build/Pull `erpnext-pandas:0.24.2`
+- Build/Pull `numpy:1.18.5` && `pandas:0.24.2` for erpnext
   - https://github.com/pandas-dev/pandas/issues/34969
   - https://github.com/frappe/erpnext/issues/22424
-  - Run `frappe-worker:verion-12` container and start bash shell
+  - Run `frappe-worker` container and start bash shell
   - Activate venv, install and build wheels
     ```sh
     . env/bin/activate
+    pip install wheel
     pip install numpy==1.18.5
     touch ~/running-container-canary.txt
     pip install pandas==0.24.2
@@ -137,17 +149,17 @@ https://github.com/frappe/frappe_docker/issues/380#issuecomment-767201476
     > Pay attention to the `/diff` prefix, this is where docker keeps file changes during container runtime
 
 
-- Build `erpnext-worker:version-12`
+- Build `erpnext-worker`
   ```sh
   docker buildx build \
             --load \
             --platform linux/arm64 \
             --build-arg DOCKER_REGISTRY_PREFIX=${DOCKER_REGISTRY_PREFIX} \
-            --build-arg GIT_BRANCH=${GIT_BRANCH} \
+            --build-arg FRAPPE_VERSION=${FRAPPE_VERSION} \
             --build-arg APP_NAME=erpnext \
             --build-arg APP_REPO=https://github.com/frappe/erpnext \
-            --build-arg APP_BRANCH=${GIT_BRANCH} \
-            -t ${DOCKER_REGISTRY_PREFIX}/erpnext-worker:${GIT_BRANCH} \
+            --build-arg APP_BRANCH=${ERPNEXT_VERSION} \
+            -t ${DOCKER_REGISTRY_PREFIX}/erpnext-worker:${ERPNEXT_VERSION} \
             --no-cache -f build/erpnext-worker/arm64.Dockerfile .
   ```
 
@@ -161,3 +173,13 @@ https://github.com/frappe/frappe_docker/issues/380#issuecomment-767201476
 
 ## Run sites
 - `docker-compose up -d`
+
+## Wheels
+If you already have an image with all python deps installed, you can cache/build wheels and then keep the built wheels locally on your host.
+- Exec into your container
+- `pip install wheel`
+- `pip wheel --wheels-dir <easy-to-find-path> -e <path-to-app>`
+- Or you can use `pip wheel --wheels-dir <easy-to-find-path> -r <requirements.txt>`
+- After pip finishes building wheels, keep the container running
+- On your host, use the method described above (numpy/pandas) to find the correct fs layer and cd into it.
+- Copy the built wheels from `$fslayer/diff/<easy-to-find-path>` to `<this-project>`/build/you-app-worker/wheels
