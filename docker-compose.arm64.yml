@@ -88,11 +88,13 @@ services:
 
   erpnext-python:
     image: ${DOCKER_REGISTRY_PREFIX}/erpnext-worker:${ERPNEXT_VERSION}
+    platform: linux/arm64
     build:
       context: .
       dockerfile: build/erpnext-worker/arm64.Dockerfile
       args:
-        GIT_BRANCH: ${GIT_BRANCH}
+        FRAPPE_VERSION: ${FRAPPE_VERSION}
+        ERPNEXT_VERSION: ${ERPNEXT_VERSION}
         DOCKER_REGISTRY_PREFIX: ${DOCKER_REGISTRY_PREFIX}
     restart: on-failure
     environment:
@@ -108,9 +110,12 @@ services:
 
   frappe-socketio:
     image: ${DOCKER_REGISTRY_PREFIX}/frappe-socketio:${FRAPPE_VERSION}
+    platform: linux/arm64
     build:
       context: .
       dockerfile: build/frappe-socketio/arm64.Dockerfile
+      args:
+        FRAPPE_VERSION: ${FRAPPE_VERSION}
     restart: on-failure
     depends_on:
       - redis-socketio
@@ -120,10 +125,10 @@ services:
 
   erpnext-worker-default:
     image: ${DOCKER_REGISTRY_PREFIX}/erpnext-worker:${ERPNEXT_VERSION}
+    platform: linux/arm64
     restart: on-failure
     command: worker
     depends_on:
-      - erpnext-python
       - redis-queue
       - redis-cache
     volumes:
@@ -132,12 +137,12 @@ services:
 
   erpnext-worker-short:
     image: ${DOCKER_REGISTRY_PREFIX}/erpnext-worker:${ERPNEXT_VERSION}
+    platform: linux/arm64
     restart: on-failure
     command: worker
     environment:
       - WORKER_TYPE=short
     depends_on:
-      - erpnext-python
       - redis-queue
       - redis-cache
     volumes:
@@ -146,12 +151,12 @@ services:
 
   erpnext-worker-long:
     image: ${DOCKER_REGISTRY_PREFIX}/erpnext-worker:${ERPNEXT_VERSION}
+    platform: linux/arm64
     restart: on-failure
     command: worker
     environment:
       - WORKER_TYPE=long
     depends_on:
-      - erpnext-python
       - redis-queue
       - redis-cache
     volumes:
@@ -159,10 +164,10 @@ services:
 
   erpnext-schedule:
     image: ${DOCKER_REGISTRY_PREFIX}/erpnext-worker:${ERPNEXT_VERSION}
+    platform: linux/arm64
     restart: on-failure
     command: schedule
     depends_on:
-      - erpnext-python
       - redis-queue
       - redis-cache
     volumes:
@@ -171,24 +176,28 @@ services:
 
   redis-cache:
     image: redis:latest
+    platform: linux/arm64
     restart: on-failure
     volumes:
       - redis-cache-vol:/data
 
   redis-queue:
     image: redis:latest
+    platform: linux/arm64
     restart: on-failure
     volumes:
       - redis-queue-vol:/data
 
   redis-socketio:
     image: redis:latest
+    platform: linux/arm64
     restart: on-failure
     volumes:
       - redis-socketio-vol:/data
 
   mariadb:
     image: mariadb:10.3
+    platform: linux/arm64
     restart: on-failure
     environment:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
@@ -198,10 +207,9 @@ services:
 
   site-creator:
     image: ${DOCKER_REGISTRY_PREFIX}/erpnext-worker:${ERPNEXT_VERSION}
+    platform: linux/arm64
     restart: 'no'
     command: new
-    depends_on:
-      - erpnext-python
     environment:
       - SITE_NAME=${SITE_NAME}
       - DB_ROOT_USER=${DB_ROOT_USER}
