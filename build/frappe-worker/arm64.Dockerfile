@@ -79,6 +79,11 @@ ENV XDG_CACHE_HOME=/home/frappe/.cache
 ENV PIP_WHEEL_CACHE="build/frappe-worker/wheels/*.whl"
 COPY ${PIP_WHEEL_CACHE} /tmp/cache/wheels/
 
+# This is to make sure given wheel cache is used and not overridden by subsequent pip installs
+RUN \
+    . env/bin/activate \
+    && find /tmp/cache/wheels/ -name "*.whl" -type f -print0 | xargs -0 pip3 install
+
 # Setup python environment
 RUN \
     --mount=type=cache,target=${VIRTUAL_ENV} \
@@ -114,6 +119,10 @@ ONBUILD ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 ONBUILD ENV XDG_CACHE_HOME=/home/frappe/.cache
 ONBUILD ENV PIP_WHEEL_CACHE="build/${APP_NAME}-worker/wheels/*.whl"
 ONBUILD COPY ${PIP_WHEEL_CACHE} /tmp/cache/wheels/
+
+# This is to make sure given wheel cache is used and not overridden by subsequent pip installs
+ONBUILD RUN \
+    find /tmp/cache/wheels/ -name "*.whl" -type f -print0 | xargs -0 pip3 install
 ONBUILD RUN \
     --mount=type=cache,target=${VIRTUAL_ENV} \
     --mount=type=cache,target=${XDG_CACHE_HOME} \
