@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1.2
-ARG GIT_BRANCH=develop
+ARG FRAPPE_VERSION=develop
 ARG DOCKER_REGISTRY_PREFIX=frappe
-FROM ${DOCKER_REGISTRY_PREFIX}/frappe-worker:${GIT_BRANCH}
+FROM ${DOCKER_REGISTRY_PREFIX}/frappe-worker:${FRAPPE_VERSION}
 
 ONBUILD WORKDIR /home/frappe/frappe-bench/apps
 ONBUILD ARG APP_NAME
@@ -17,4 +17,4 @@ ONBUILD COPY ${PIP_WHEEL_CACHE} /tmp/cache/wheels/
 ONBUILD RUN \
     --mount=type=cache,target=${VIRTUAL_ENV} \
     --mount=type=cache,target=${XDG_CACHE_HOME} \
-    pip3 install --verbose --find-links /tmp/cache/wheels -e /home/frappe/frappe-bench/apps/${APP_NAME}
+    pip3 install --find-links /tmp/cache/wheels -e /home/frappe/frappe-bench/apps/${APP_NAME}
