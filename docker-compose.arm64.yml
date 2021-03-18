@@ -42,13 +42,14 @@ services:
 
   erpnext-nginx:
     image: ${DOCKER_REGISTRY_PREFIX}/erpnext-nginx:${ERPNEXT_VERSION}
+    platform: linux/arm64
     build:
       context: .
       dockerfile: build/erpnext-nginx/arm64.Dockerfile
       args:
-        GIT_BRANCH: ${GIT_BRANCH}
+        FRAPPE_VERSION: ${FRAPPE_VERSION}
+        ERPNEXT_VERSION: ${ERPNEXT_VERSION}
         DOCKER_REGISTRY_PREFIX: ${DOCKER_REGISTRY_PREFIX}
-
     restart: on-failure
     environment:
       - FRAPPE_PY=erpnext-python
