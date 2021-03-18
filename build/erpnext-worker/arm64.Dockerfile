@@ -1,4 +1,7 @@
 # syntax=docker/dockerfile:1.2
-ARG GIT_BRANCH=develop
+ARG FRAPPE_VERSION=develop
+ARG APP_NAME=erpnext
+ARG APP_REPO=https://github.com/frappe/erpnext
+ARG APP_BRANCH=develop
 ARG DOCKER_REGISTRY_PREFIX=frappe
-FROM ${DOCKER_REGISTRY_PREFIX}/app-worker:${GIT_BRANCH}
+FROM ${DOCKER_REGISTRY_PREFIX}/frappe-worker:${FRAPPE_VERSION}

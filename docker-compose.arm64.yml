@@ -76,16 +76,6 @@ services:
       args:
         FRAPPE_VERSION: ${FRAPPE_VERSION}
 
-  app-worker:
-    image: ${DOCKER_REGISTRY_PREFIX}/app-worker:${FRAPPE_VERSION}
-    platform: linux/arm64
-    scale: 0
-    build:
-      context: .
-      dockerfile: build/app-worker/arm64.Dockerfile
-      args:
-        FRAPPE_VERSION: ${FRAPPE_VERSION}
-
   erpnext-python:
     image: ${DOCKER_REGISTRY_PREFIX}/erpnext-worker:${ERPNEXT_VERSION}
     platform: linux/arm64

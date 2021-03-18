@@ -69,20 +69,24 @@ RUN --mount=type=cache,target=${NVM_DIR} bash install.sh \
 # Create frappe-bench directories
 RUN mkdir -p apps logs commands sites /home/frappe/backups
 
+# Create env
+RUN python -m venv env
+
 ARG FRAPPE_VERSION=develop
 RUN [ -n "$FRAPPE_VERSION" ] || exit 1
 ENV VIRTUAL_ENV="${FRAPPE_BENCH_DIR}/env"
 ENV XDG_CACHE_HOME=/home/frappe/.cache
+ENV PIP_WHEEL_CACHE="build/frappe-worker/wheels/*.whl"
+COPY ${PIP_WHEEL_CACHE} /tmp/cache/wheels/
 
 # Setup python environment
 RUN \
     --mount=type=cache,target=${VIRTUAL_ENV} \
     --mount=type=cache,target=${XDG_CACHE_HOME} \
-    python -m venv env \
-    && . env/bin/activate \
+    . env/bin/activate \
     && cd apps \
     && git clone --depth 1 -o upstream https://github.com/frappe/frappe --branch ${FRAPPE_VERSION} \
-    && pip3 install -e ${FRAPPE_BENCH_DIR}/apps/frappe
+    && pip3 install --find-links /tmp/cache/wheels -e ${FRAPPE_BENCH_DIR}/apps/frappe
 
 # Copy scripts and templates
 COPY build/common/commands/* ${FRAPPE_BENCH_DIR}/commands/
@@ -98,3 +102,19 @@ VOLUME [ "${FRAPPE_BENCH_DIR}/sites", "/home/frappe/backups", "${FRAPPE_BENCH_DI
 
 ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["start"]
+
+ONBUILD WORKDIR /home/frappe/frappe-bench/apps
+ONBUILD ARG APP_NAME
+ONBUILD ARG APP_REPO
+ONBUILD ARG APP_BRANCH
+ONBUILD RUN git clone --depth 1 -o upstream ${APP_REPO} -b ${APP_BRANCH} ${APP_NAME}
+
+ONBUILD ENV VIRTUAL_ENV=/home/frappe/frappe-bench/env
+ONBUILD ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+ONBUILD ENV XDG_CACHE_HOME=/home/frappe/.cache
+ONBUILD ENV PIP_WHEEL_CACHE="build/${APP_NAME}-worker/wheels/*.whl"
+ONBUILD COPY ${PIP_WHEEL_CACHE} /tmp/cache/wheels/
+ONBUILD RUN \
+    --mount=type=cache,target=${VIRTUAL_ENV} \
+    --mount=type=cache,target=${XDG_CACHE_HOME} \
+    pip3 install --find-links /tmp/cache/wheels -e /home/frappe/frappe-bench/apps/${APP_NAME}
