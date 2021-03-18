@@ -84,7 +84,7 @@ services:
       dockerfile: build/erpnext-worker/arm64.Dockerfile
       args:
         FRAPPE_VERSION: ${FRAPPE_VERSION}
-        ERPNEXT_VERSION: ${ERPNEXT_VERSION}
+        APP_BRANCH: ${ERPNEXT_VERSION}
         DOCKER_REGISTRY_PREFIX: ${DOCKER_REGISTRY_PREFIX}
     restart: on-failure
     environment:
