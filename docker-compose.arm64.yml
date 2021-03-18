@@ -66,6 +66,16 @@ services:
       - sites-vol:/var/www/html/sites:rw
       - assets-vol:/assets:rw
 
+  frappe-worker:
+    image: ${DOCKER_REGISTRY_PREFIX}/frappe-worker:${FRAPPE_VERSION}
+    platform: linux/arm64
+    scale: 0
+    build:
+      context: .
+      dockerfile: build/erpnext-worker/arm64.Dockerfile
+      args:
+        FRAPPE_VERSION: ${FRAPPE_VERSION}
+
   erpnext-python:
     image: ${DOCKER_REGISTRY_PREFIX}/erpnext-worker:${ERPNEXT_VERSION}
     build:

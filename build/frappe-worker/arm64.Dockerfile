@@ -3,7 +3,6 @@ FROM python:3.7-slim-buster
 # Add non root user without password
 RUN useradd -ms /bin/bash frappe
 
-ARG GIT_BRANCH=develop
 ARG ARCH=amd64
 ENV PYTHONUNBUFFERED 1
 ENV NVM_DIR=/home/frappe/.nvm
@@ -70,24 +69,32 @@ RUN --mount=type=cache,target=${NVM_DIR} bash install.sh \
 # Create frappe-bench directories
 RUN mkdir -p apps logs commands sites /home/frappe/backups
 
+ARG FRAPPE_VERSION=develop
+RUN [ -n "$FRAPPE_VERSION" ] || exit 1
+ENV VIRTUAL_ENV="${FRAPPE_BENCH_DIR}/env"
+ENV XDG_CACHE_HOME=/home/frappe/.cache
+
 # Setup python environment
-RUN --mount=type=cache,target="${FRAPPE_BENCH_DIR}/env" python -m venv env \
+RUN \
+    --mount=type=cache,target=${VIRTUAL_ENV} \
+    --mount=type=cache,target=${XDG_CACHE_HOME} \
+    python -m venv env \
     && . env/bin/activate \
     && cd apps \
-    && git clone --depth 1 -o upstream https://github.com/frappe/frappe --branch ${GIT_BRANCH} \
-    && pip3 install --no-cache-dir -e /home/frappe/frappe-bench/apps/frappe
+    && git clone --depth 1 -o upstream https://github.com/frappe/frappe --branch ${FRAPPE_VERSION} \
+    && pip3 install -e ${FRAPPE_BENCH_DIR}/apps/frappe
 
 # Copy scripts and templates
-COPY build/common/commands/* /home/frappe/frappe-bench/commands/
+COPY build/common/commands/* ${FRAPPE_BENCH_DIR}/commands/
 COPY build/common/common_site_config.json.template /opt/frappe/common_site_config.json.template
 COPY build/common/worker/install_app.sh /usr/local/bin/install_app
 COPY build/common/worker/bench /usr/local/bin/bench
 COPY build/common/worker/healthcheck.sh /usr/local/bin/healthcheck.sh
 
 # Use sites volume as working directory
-WORKDIR /home/frappe/frappe-bench/sites
+WORKDIR "${FRAPPE_BENCH_DIR}/sites"
 
-VOLUME [ "/home/frappe/frappe-bench/sites", "/home/frappe/backups", "/home/frappe/frappe-bench/logs" ]
+VOLUME [ "${FRAPPE_BENCH_DIR}/sites", "/home/frappe/backups", "${FRAPPE_BENCH_DIR}/logs" ]
 
 ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["start"]
