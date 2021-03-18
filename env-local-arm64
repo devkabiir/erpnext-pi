@@ -18,5 +18,6 @@ HTTPS_USE_REDIRECT_MIDDLEWARE_LABEL=erpnext.local-no-redirect-middleware
 
 # ARM64
 DOCKER_REGISTRY_PREFIX=devkabiir
+COMPOSE_FILE=docker-compose.arm64.yml
 GIT_BRANCH=version-12
 HTTP_TIMEOUT=600
