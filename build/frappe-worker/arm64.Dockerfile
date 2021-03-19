@@ -90,7 +90,7 @@ RUN \
     . env/bin/activate \
     && cd apps \
     && git clone --depth 1 -o upstream https://github.com/frappe/frappe --branch ${FRAPPE_VERSION} \
-    && bash -c '{ [ ! $(git rev-parse --symbolic-full-name HEAD) == "HEAD" ] || git checkout -b $FRAPPE_VERSION; }' \
+    && bash -c 'cd frappe; { [ ! $(git rev-parse --symbolic-full-name HEAD) == "HEAD" ] || git checkout -b $FRAPPE_VERSION; }' \
     && pip3 install --find-links /tmp/cache/wheels -e ${FRAPPE_BENCH_DIR}/apps/frappe
 
 # Copy scripts and templates
