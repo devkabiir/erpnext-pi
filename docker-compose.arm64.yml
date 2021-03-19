@@ -29,17 +29,6 @@ services:
       - cert-vol:/letsencrypt
       - /var/run/docker.sock:/var/run/docker.sock:ro
 
-  frappe-nginx:
-    image: ${DOCKER_REGISTRY_PREFIX}/frappe-nginx:${FRAPPE_VERSION}
-    platform: linux/arm64
-    scale: 0
-    build:
-      context: .
-      dockerfile: build/frappe-nginx/arm64.Dockerfile
-      args:
-        FRAPPE_VERSION: ${FRAPPE_VERSION}
-        DOCKER_REGISTRY_PREFIX: ${DOCKER_REGISTRY_PREFIX}
-
   erpnext-nginx:
     image: ${DOCKER_REGISTRY_PREFIX}/erpnext-nginx:${ERPNEXT_VERSION}
     platform: linux/arm64
@@ -65,16 +54,6 @@ services:
     volumes:
       - sites-vol:/var/www/html/sites:rw
       - assets-vol:/assets:rw
-
-  frappe-worker:
-    image: ${DOCKER_REGISTRY_PREFIX}/frappe-worker:${FRAPPE_VERSION}
-    platform: linux/arm64
-    scale: 0
-    build:
-      context: .
-      dockerfile: build/frappe-worker/arm64.Dockerfile
-      args:
-        FRAPPE_VERSION: ${FRAPPE_VERSION}
 
   erpnext-python:
     image: ${DOCKER_REGISTRY_PREFIX}/erpnext-worker:${ERPNEXT_VERSION}
