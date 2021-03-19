@@ -33,7 +33,7 @@ def main():
         repo = git.Repo(os.path.join('..', 'apps', app))
         try:
             branch = repo.active_branch.name
-        else:
+        except:
             branch = repo.head.object.hexsha
 
         if branch == 'develop':
