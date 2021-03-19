@@ -5,3 +5,6 @@ README.md
 LICENSE.md
 .gitignore
 docker-*.yml
+*.Dockerfile
+Dockerfile
+.dockerignore
