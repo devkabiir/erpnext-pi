@@ -3,7 +3,6 @@ FROM python:3.7-slim-buster
 # Add non root user without password
 RUN useradd -ms /bin/bash frappe
 
-ARG GIT_BRANCH=develop
 ARG ARCH=amd64
 ENV PYTHONUNBUFFERED 1
 ENV NVM_DIR=/home/frappe/.nvm
@@ -70,24 +69,61 @@ RUN --mount=type=cache,target=${NVM_DIR} bash install.sh \
 # Create frappe-bench directories
 RUN mkdir -p apps logs commands sites /home/frappe/backups
 
+# Create env
+RUN python -m venv env
+
+ARG FRAPPE_VERSION=develop
+RUN [ -n "$FRAPPE_VERSION" ] || exit 1
+ENV VIRTUAL_ENV="${FRAPPE_BENCH_DIR}/env"
+ENV XDG_CACHE_HOME=/home/frappe/.cache
+ENV PIP_WHEEL_CACHE="build/frappe-worker/wheels/*.whl"
+COPY ${PIP_WHEEL_CACHE} /tmp/cache/wheels/
+
+# This is to make sure given wheel cache is used and not overridden by subsequent pip installs
+RUN \
+    . env/bin/activate \
+    && find /tmp/cache/wheels/ -name "*.whl" -type f -print0 | xargs -0 pip3 install
+
 # Setup python environment
-RUN --mount=type=cache,target="${FRAPPE_BENCH_DIR}/env" python -m venv env \
-    && . env/bin/activate \
+RUN \
+    --mount=type=cache,target=${VIRTUAL_ENV} \
+    --mount=type=cache,target=${XDG_CACHE_HOME} \
+    . env/bin/activate \
     && cd apps \
-    && git clone --depth 1 -o upstream https://github.com/frappe/frappe --branch ${GIT_BRANCH} \
-    && pip3 install --no-cache-dir -e /home/frappe/frappe-bench/apps/frappe
+    && git clone --depth 1 -o upstream https://github.com/frappe/frappe --branch ${FRAPPE_VERSION} \
+    && pip3 install --find-links /tmp/cache/wheels -e ${FRAPPE_BENCH_DIR}/apps/frappe
 
 # Copy scripts and templates
-COPY build/common/commands/* /home/frappe/frappe-bench/commands/
+COPY build/common/commands/* ${FRAPPE_BENCH_DIR}/commands/
 COPY build/common/common_site_config.json.template /opt/frappe/common_site_config.json.template
 COPY build/common/worker/install_app.sh /usr/local/bin/install_app
 COPY build/common/worker/bench /usr/local/bin/bench
 COPY build/common/worker/healthcheck.sh /usr/local/bin/healthcheck.sh
 
 # Use sites volume as working directory
-WORKDIR /home/frappe/frappe-bench/sites
+WORKDIR "${FRAPPE_BENCH_DIR}/sites"
 
-VOLUME [ "/home/frappe/frappe-bench/sites", "/home/frappe/backups", "/home/frappe/frappe-bench/logs" ]
+VOLUME [ "${FRAPPE_BENCH_DIR}/sites", "/home/frappe/backups", "${FRAPPE_BENCH_DIR}/logs" ]
 
 ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["start"]
+
+ONBUILD WORKDIR /home/frappe/frappe-bench/apps
+ONBUILD ARG APP_NAME
+ONBUILD ARG APP_REPO
+ONBUILD ARG APP_BRANCH
+ONBUILD RUN git clone --depth 1 -o upstream ${APP_REPO} -b ${APP_BRANCH} ${APP_NAME}
+
+ONBUILD ENV VIRTUAL_ENV=/home/frappe/frappe-bench/env
+ONBUILD ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+ONBUILD ENV XDG_CACHE_HOME=/home/frappe/.cache
+ONBUILD ENV PIP_WHEEL_CACHE="build/${APP_NAME}-worker/wheels/*.whl"
+ONBUILD COPY ${PIP_WHEEL_CACHE} /tmp/cache/wheels/
+
+# This is to make sure given wheel cache is used and not overridden by subsequent pip installs
+ONBUILD RUN \
+    find /tmp/cache/wheels/ -name "*.whl" -type f -print0 | xargs -0 pip3 install
+ONBUILD RUN \
+    --mount=type=cache,target=${VIRTUAL_ENV} \
+    --mount=type=cache,target=${XDG_CACHE_HOME} \
+    pip3 install --find-links /tmp/cache/wheels -e /home/frappe/frappe-bench/apps/${APP_NAME}

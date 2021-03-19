@@ -1,6 +1,6 @@
 LETSENCRYPT_EMAIL=email@example.com
-ERPNEXT_VERSION=version-12
-FRAPPE_VERSION=version-12
+ERPNEXT_VERSION="v12.18.0"
+FRAPPE_VERSION="v12.15.0"
 MARIADB_HOST=mariadb
 MYSQL_ROOT_PASSWORD=admin
 SITE_NAME=mysite.localhost
@@ -18,5 +18,6 @@ HTTPS_USE_REDIRECT_MIDDLEWARE_LABEL=erpnext.local-no-redirect-middleware
 
 # ARM64
 DOCKER_REGISTRY_PREFIX=devkabiir
+COMPOSE_FILE=docker-compose.arm64.yml
 GIT_BRANCH=version-12
 HTTP_TIMEOUT=600
