@@ -1,6 +1,7 @@
 
 ## Setup mDNS using avahi on pi
 - `sudo apt install avahi-daemon`
+- `sudo apt install avahi-utils`
 - Provide unique hostnames for all rpi, they can be accessed by  
   `ssh user@rpi-hostname.local`
 - Install apple bonjour service for windows clients  
@@ -34,6 +35,9 @@ http://stackoverflow.com/questions/46202475/ddg#46225471
 
 ## Running
 - `cp env-local-arm64 .env`
+- `cp avahi-alias@.service /etc/systemd/system/avahi-alias@.service`
+- `systemctl enable --now avahi-alias@site-name.local.service`
+  > This only works if the site name also ends with `.local` instead of `.localhost`
 - `. __docker-compose__/bin/activate`
 - `docker-compose --project-name <project-name> up -d
 

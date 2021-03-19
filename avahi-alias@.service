@@ -1,0 +1,12 @@
+[Unit]
+Description=Publish %I as alias for %H.local via mdns
+Requires=avahi-daemon.service
+
+[Service]
+Type=simple
+ExecStart=/bin/bash -c "echo avahi-alias %I $(avahi-resolve -4 -n %H.local > /dev/null && hostname -I | head -1) && /usr/bin/avahi-publish -a -R %I $(avahi-resolve -4 -n %H.local > /dev/null && hostname -I | head -1)"
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
