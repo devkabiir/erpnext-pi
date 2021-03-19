@@ -37,6 +37,7 @@ http://stackoverflow.com/questions/46202475/ddg#46225471
 - `cp env-local-arm64 .env`
 - `cp avahi-alias@.service /etc/systemd/system/avahi-alias@.service`
 - `systemctl enable --now avahi-alias@site-name.local.service`
+  > This only works if the site name also ends with `.local` instead of `.localhost`
 - `. __docker-compose__/bin/activate`
 - `docker-compose --project-name <project-name> up -d
 
