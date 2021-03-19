@@ -7,6 +7,9 @@
   `choco install -y bonjour`  
   Make sure the service has started
 
+## Build docker-compose for arm64
+
+
 ## Setup docker on pi
 - For ubuntu server `curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg`
 - Add repo
@@ -22,10 +25,11 @@
 - Add current user to docker usergroup
 http://stackoverflow.com/questions/46202475/ddg#46225471  
   `sudo usermod -aG docker $USER`  
-- `sudo apt install libffi-dev libssl-dev`
-- `python -m venv __docker-compose__`
-- `. __docker-compose__/bin/activate`
-- `pip3 install docker-compose`
+- `sudo reboot`
+- `docker pull --platform linux/arm64 linuxserver/docker-compose:version-1.28.5`
+- `docker tag linuxserver/docker-compose:version-1.28.5 docker/compose:1.28.5`
+- `sudo curl -L --fail https://github.com/docker/compose/releases/download/1.28.5/run.sh -o /usr/local/bin/docker-compose`
+- `sudo chmod +x /usr/local/bin/docker-compose`
 - Reboot `sudo reboot`
 
 ## Running
@@ -190,8 +194,8 @@ https://github.com/frappe/frappe_docker/issues/380#issuecomment-767201476
 If you already have an image with all python deps installed, you can cache/build wheels and then keep the built wheels locally on your host.
 - Exec into your container
 - `pip install wheel`
-- `pip wheel --wheels-dir <easy-to-find-path> -e <path-to-app>`
-- Or you can use `pip wheel --wheels-dir <easy-to-find-path> -r <requirements.txt>`
+- `pip wheel --wheel-dir <easy-to-find-path> -e <path-to-app>`
+- Or you can use `pip wheel --wheel-dir <easy-to-find-path> -r <requirements.txt>`
 - After pip finishes building wheels, keep the container running
 - On your host, use the method described above (numpy/pandas) to find the correct fs layer and cd into it.
 - Copy the built wheels from `$fslayer/diff/<easy-to-find-path>` to `<this-project>`/build/you-app-worker/wheels
