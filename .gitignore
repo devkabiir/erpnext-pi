@@ -16,3 +16,6 @@ deploy_key.pub
 
 # VS Code devcontainer
 .devcontainer
+
+# Production docker-compose env
+__docker-compose__
