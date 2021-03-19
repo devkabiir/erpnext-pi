@@ -8,18 +8,29 @@
   Make sure the service has started
 
 ## Setup docker on pi
-- Install docker `sudo apt install docker.io docker-compose`
+- For ubuntu server `curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg`
+- Add repo
+  ```sh
+  echo \
+  "deb [arch=arm64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
+  $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+  ```
+- Install docker `sudo apt install docker-ce docker-ce-cli containerd.io`
 - Enable dockerd on boot  
   `sudo systemctl enable docker.service`  
   `sudo systemctl enable containerd.service`  
 - Add current user to docker usergroup
 http://stackoverflow.com/questions/46202475/ddg#46225471  
   `sudo usermod -aG docker $USER`  
-  `exit`  
+- `sudo apt install libffi-dev libssl-dev`
+- `python -m venv __docker-compose__`
+- `. __docker-compose__/bin/activate`
+- `pip3 install docker-compose`
 - Reboot `sudo reboot`
 
 ## Running
 - `cp env-local-arm64 .env`
+- `. __docker-compose__/bin/activate`
 - `docker-compose --project-name <project-name> up -d
 
 ## Build using docker-compose
