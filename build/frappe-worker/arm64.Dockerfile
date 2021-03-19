@@ -60,7 +60,7 @@ RUN ln -s /usr/local/bin/docker-entrypoint.sh /
 
 USER frappe
 # Install nvm with node
-RUN --mount=type=cache,target=/home/frappe/.nvm bash install.sh \
+RUN bash install.sh \
     && . "$NVM_DIR/nvm.sh" \
     && nvm install ${NODE_VERSION} \
     && nvm use v${NODE_VERSION} \
@@ -86,7 +86,6 @@ RUN \
 
 # Setup python environment
 RUN \
-    --mount=type=cache,target=/home/frappe/frappe-bench/env \
     --mount=type=cache,target=/home/frappe/.cache \
     . env/bin/activate \
     && cd apps \
@@ -124,12 +123,13 @@ ONBUILD COPY ${PIP_WHEEL_CACHE} /tmp/cache/wheels/
 ONBUILD RUN \
     find /tmp/cache/wheels/ -name "*.whl" -type f -print0 | xargs -0 pip3 install
 ONBUILD RUN \
-    --mount=type=cache,target=/home/frappe/frappe-bench/env \
     --mount=type=cache,target=/home/frappe/.cache \
     pip3 install --find-links /tmp/cache/wheels -e /home/frappe/frappe-bench/apps/${APP_NAME}
 
 # Use sites volume as working directory
 ONBUILD WORKDIR "${FRAPPE_BENCH_DIR}/sites"
+
+ONBUILD VOLUME [ "${FRAPPE_BENCH_DIR}/sites", "/home/frappe/backups", "${FRAPPE_BENCH_DIR}/logs" ]
 
 ONBUILD ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 ONBUILD CMD ["start"]
