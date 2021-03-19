@@ -38,7 +38,7 @@ ARG FRAPPE_VERSION=develop
 RUN mkdir -p apps sites/assets/css  \
     && cd apps \
     && git clone --depth 1 https://github.com/frappe/frappe --branch $FRAPPE_VERSION \
-    && [ ! $(git rev-parse --symbolic-full-name HEAD) == "HEAD" ] || git branch $FRAPPE_VERSION
+    && [ ! $(git rev-parse --symbolic-full-name HEAD) == "HEAD" ] || git checkout -b $FRAPPE_VERSION
 
 RUN yarn config set cache-folder /var/cache/yarn
 

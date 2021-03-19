@@ -90,7 +90,7 @@ RUN \
     . env/bin/activate \
     && cd apps \
     && git clone --depth 1 -o upstream https://github.com/frappe/frappe --branch ${FRAPPE_VERSION} \
-    && bash -c '{ [ ! $(git rev-parse --symbolic-full-name HEAD) == "HEAD" ] || git branch $FRAPPE_VERSION; }' \
+    && bash -c '{ [ ! $(git rev-parse --symbolic-full-name HEAD) == "HEAD" ] || git checkout -b $FRAPPE_VERSION; }' \
     && pip3 install --find-links /tmp/cache/wheels -e ${FRAPPE_BENCH_DIR}/apps/frappe
 
 # Copy scripts and templates
@@ -113,7 +113,7 @@ ONBUILD ARG APP_NAME
 ONBUILD ARG APP_REPO
 ONBUILD ARG APP_BRANCH
 ONBUILD RUN git clone --depth 1 -o upstream ${APP_REPO} -b ${APP_BRANCH} ${APP_NAME} \
-    && cd ${APP_NAME} && [ ! $(git rev-parse --symbolic-full-name HEAD) == "HEAD" ] || git branch $APP_BRANCH
+    && cd ${APP_NAME} && [ ! $(git rev-parse --symbolic-full-name HEAD) == "HEAD" ] || git checkout -b $APP_BRANCH
 
 ONBUILD ENV VIRTUAL_ENV=/home/frappe/frappe-bench/env
 ONBUILD ENV PATH="$VIRTUAL_ENV/bin:$PATH"
