@@ -127,3 +127,6 @@ ONBUILD RUN \
     --mount=type=cache,target=${VIRTUAL_ENV} \
     --mount=type=cache,target=${XDG_CACHE_HOME} \
     pip3 install --find-links /tmp/cache/wheels -e /home/frappe/frappe-bench/apps/${APP_NAME}
+
+ONBUILD ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
+ONBUILD CMD ["start"]
