@@ -40,6 +40,7 @@ http://stackoverflow.com/questions/46202475/ddg#46225471
 ## Build using docker-compose
 - `cp env-local-arm64 .env`
 - Update frappe/erpnext versions in `.env` if required
+- `export COMPOSE_FILE=docker-compose.arm64-build.yml`
 - `docker-compose build frappe-socketio frappe-nginx frappe-worker`
 - `docker-compose build erpnext-nginx erpnext-python`
 
