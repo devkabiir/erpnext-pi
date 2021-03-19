@@ -17,7 +17,7 @@ ENV PATH="/root/.nvm/versions/node/v${NODE_VERSION}/bin/:${PATH}"
 
 RUN wget https://raw.githubusercontent.com/nvm-sh/nvm/v0.37.2/install.sh \
     && chmod +x install.sh
-RUN --mount=type=cache,target=${NVM_DIR} ./install.sh \
+RUN ./install.sh \
     && . "$NVM_DIR/nvm.sh" && nvm install ${NODE_VERSION} \
     && nvm use v${NODE_VERSION}
 

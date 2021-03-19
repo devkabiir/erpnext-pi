@@ -31,7 +31,10 @@ def main():
         container_hash = None
 
         repo = git.Repo(os.path.join('..', 'apps', app))
-        branch = repo.active_branch.name
+        try:
+            branch = repo.active_branch.name
+        else:
+            branch = repo.head.object.hexsha
 
         if branch == 'develop':
             version_file_hash = version_file.get(app+'_git_hash')
