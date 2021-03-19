@@ -1,0 +1,22 @@
+version: '3'
+services:
+  frappe-nginx:
+    image: ${DOCKER_REGISTRY_PREFIX}/frappe-nginx:${FRAPPE_VERSION}
+    platform: linux/arm64
+    scale: 0
+    build:
+      context: .
+      dockerfile: build/frappe-nginx/arm64.Dockerfile
+      args:
+        FRAPPE_VERSION: ${FRAPPE_VERSION}
+        DOCKER_REGISTRY_PREFIX: ${DOCKER_REGISTRY_PREFIX}
+
+  frappe-worker:
+    image: ${DOCKER_REGISTRY_PREFIX}/frappe-worker:${FRAPPE_VERSION}
+    platform: linux/arm64
+    scale: 0
+    build:
+      context: .
+      dockerfile: build/frappe-worker/arm64.Dockerfile
+      args:
+        FRAPPE_VERSION: ${FRAPPE_VERSION}
