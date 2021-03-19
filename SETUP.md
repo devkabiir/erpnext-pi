@@ -41,7 +41,7 @@ http://stackoverflow.com/questions/46202475/ddg#46225471
   > To use the ip assigned to your wifi use
   > `ip -f inet addr show wlan0 |  awk '/inet / {print $2}' | cut -d/ -f1` instead of `hostname -I | head -1` in the avahi-alias.service  
   > Here `wlan0` is the name of wifi interface, any other inteface will also work
-- `. __docker-compose__/bin/activate`
+- `docker-compose pull`
 - `docker-compose --project-name <project-name> up -d
 
 ## Build using docker-compose
