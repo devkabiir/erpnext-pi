@@ -86,7 +86,6 @@ RUN \
 
 # Setup python environment
 RUN \
-    --mount=type=cache,target=/home/frappe/.cache \
     . env/bin/activate \
     && cd apps \
     && git clone --depth 1 -o upstream https://github.com/frappe/frappe --branch ${FRAPPE_VERSION} \
@@ -125,7 +124,6 @@ ONBUILD COPY ${PIP_WHEEL_CACHE} /tmp/cache/wheels/
 ONBUILD RUN \
     find /tmp/cache/wheels/ -name "*.whl" -type f -print0 | xargs -0 pip3 install
 ONBUILD RUN \
-    --mount=type=cache,target=/home/frappe/.cache \
     pip3 install --find-links /tmp/cache/wheels -e /home/frappe/frappe-bench/apps/${APP_NAME}
 
 # Use sites volume as working directory
