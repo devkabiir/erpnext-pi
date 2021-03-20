@@ -16,8 +16,7 @@ WORKDIR ${FRAPPE_BENCH_DIR}
 
 # https://github.com/moby/buildkit/blob/master/frontend/dockerfile/docs/syntax.md#example-cache-apt-packages
 # https://github.com/moby/buildkit/issues/1662
-RUN --mount=type=cache,target=/var/cache/apt --mount=type=cache,target=/var/lib/apt,sharing=locked \
-    apt-get update -y \
+RUN apt-get update -y \
     && apt-get install \
     # for frappe framework
     git \

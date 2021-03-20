@@ -5,8 +5,7 @@
 # by Website Manager role in Frappe Framework
 FROM python:3.7-slim-buster
 
-RUN --mount=type=cache,target=/var/cache/apt --mount=type=cache,target=/var/lib/apt,sharing=locked \
-    apt-get update -y \
+RUN apt-get update -y \
     && apt-get install wget python2 git build-essential -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
@@ -60,8 +59,7 @@ RUN mkdir -p /home/frappe/frappe-bench/sites/assets/frappe/ \
 
 FROM nginx:latest
 
-RUN --mount=type=cache,target=/var/cache/apt --mount=type=cache,target=/var/lib/apt,sharing=locked \
-    apt-get update -y \
+RUN apt-get update -y \
     && apt-get install -y rsync && apt-get clean \
     && echo "#!/bin/bash" > /rsync \
     && chmod +x /rsync
