@@ -40,11 +40,8 @@ RUN mkdir -p apps sites/assets/css  \
     && git clone --depth 1 https://github.com/frappe/frappe --branch $FRAPPE_VERSION \
     && cd frappe && [ ! $(git rev-parse --symbolic-full-name HEAD) == "HEAD" ] || git checkout -b $FRAPPE_VERSION
 
-RUN yarn config set cache-folder /var/cache/yarn
 
-RUN --mount=type=cache,target=/var/cache/yarn \
-    --mount=type=cache,target=/home/frappe/frappe-bench/apps/frappe/node_modules \
-    cd /home/frappe/frappe-bench/apps/frappe \
+RUN cd /home/frappe/frappe-bench/apps/frappe \
     && yarn --verbose --prefer-offline --frozen-lockfile
 
 # We don't cache mount here because yarn will delete dev-dependencies in the resulting cache

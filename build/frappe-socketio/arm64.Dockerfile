@@ -20,7 +20,7 @@ RUN mkdir -p /home/frappe/frappe-bench/sites /home/frappe/frappe-bench/apps/frap
 # Install socketio dependencies
 COPY build/frappe-socketio/package.json /home/frappe/frappe-bench/apps/frappe
 
-RUN --mount=type=cache,target=/home/frappe/frappe-bench/apps/frappe/node_modules cd /home/frappe/frappe-bench/apps/frappe \
+RUN cd /home/frappe/frappe-bench/apps/frappe \
     && npm install --only=production \
     && node --version \
     && npm --version
