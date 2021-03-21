@@ -16,8 +16,7 @@ WORKDIR ${FRAPPE_BENCH_DIR}
 
 # https://github.com/moby/buildkit/blob/master/frontend/dockerfile/docs/syntax.md#example-cache-apt-packages
 # https://github.com/moby/buildkit/issues/1662
-RUN --mount=type=cache,target=/var/cache/apt --mount=type=cache,target=/var/lib/apt,sharing=locked \
-    apt-get update -y \
+RUN apt-get update -y \
     && apt-get install \
     # for frappe framework
     git \
@@ -86,10 +85,10 @@ RUN \
 
 # Setup python environment
 RUN \
-    --mount=type=cache,target=/home/frappe/.cache \
     . env/bin/activate \
     && cd apps \
     && git clone --depth 1 -o upstream https://github.com/frappe/frappe --branch ${FRAPPE_VERSION} \
+    && bash -c 'cd frappe; { [ ! $(git rev-parse --symbolic-full-name HEAD) == "HEAD" ] || git checkout -b $FRAPPE_VERSION; }' \
     && pip3 install --find-links /tmp/cache/wheels -e ${FRAPPE_BENCH_DIR}/apps/frappe
 
 # Copy scripts and templates
@@ -111,7 +110,8 @@ ONBUILD WORKDIR /home/frappe/frappe-bench/apps
 ONBUILD ARG APP_NAME
 ONBUILD ARG APP_REPO
 ONBUILD ARG APP_BRANCH
-ONBUILD RUN git clone --depth 1 -o upstream ${APP_REPO} -b ${APP_BRANCH} ${APP_NAME}
+ONBUILD RUN git clone --depth 1 -o upstream ${APP_REPO} -b ${APP_BRANCH} ${APP_NAME} \
+    && cd ${APP_NAME} && [ ! $(git rev-parse --symbolic-full-name HEAD) == "HEAD" ] || git checkout -b $APP_BRANCH
 
 ONBUILD ENV VIRTUAL_ENV=/home/frappe/frappe-bench/env
 ONBUILD ENV PATH="$VIRTUAL_ENV/bin:$PATH"
@@ -123,7 +123,6 @@ ONBUILD COPY ${PIP_WHEEL_CACHE} /tmp/cache/wheels/
 ONBUILD RUN \
     find /tmp/cache/wheels/ -name "*.whl" -type f -print0 | xargs -0 pip3 install
 ONBUILD RUN \
-    --mount=type=cache,target=/home/frappe/.cache \
     pip3 install --find-links /tmp/cache/wheels -e /home/frappe/frappe-bench/apps/${APP_NAME}
 
 # Use sites volume as working directory

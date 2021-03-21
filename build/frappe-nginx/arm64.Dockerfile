@@ -5,8 +5,7 @@
 # by Website Manager role in Frappe Framework
 FROM python:3.7-slim-buster
 
-RUN --mount=type=cache,target=/var/cache/apt --mount=type=cache,target=/var/lib/apt,sharing=locked \
-    apt-get update -y \
+RUN apt-get update -y \
     && apt-get install wget python2 git build-essential -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
@@ -37,13 +36,11 @@ RUN mkdir -p /home/frappe/frappe-bench/sites \
 ARG FRAPPE_VERSION=develop
 RUN mkdir -p apps sites/assets/css  \
     && cd apps \
-    && git clone --depth 1 https://github.com/frappe/frappe --branch $FRAPPE_VERSION
+    && git clone --depth 1 https://github.com/frappe/frappe --branch $FRAPPE_VERSION \
+    && cd frappe && [ ! $(git rev-parse --symbolic-full-name HEAD) == "HEAD" ] || git checkout -b $FRAPPE_VERSION
 
-RUN yarn config set cache-folder /var/cache/yarn
 
-RUN --mount=type=cache,target=/var/cache/yarn \
-    --mount=type=cache,target=/home/frappe/frappe-bench/apps/frappe/node_modules \
-    cd /home/frappe/frappe-bench/apps/frappe \
+RUN cd /home/frappe/frappe-bench/apps/frappe \
     && yarn --verbose --prefer-offline --frozen-lockfile
 
 # We don't cache mount here because yarn will delete dev-dependencies in the resulting cache
@@ -62,8 +59,7 @@ RUN mkdir -p /home/frappe/frappe-bench/sites/assets/frappe/ \
 
 FROM nginx:latest
 
-RUN --mount=type=cache,target=/var/cache/apt --mount=type=cache,target=/var/lib/apt,sharing=locked \
-    apt-get update -y \
+RUN apt-get update -y \
     && apt-get install -y rsync && apt-get clean \
     && echo "#!/bin/bash" > /rsync \
     && chmod +x /rsync
